@@ -18,7 +18,6 @@ namespace TresEnRaya
         static void Main(string[] args)
         {
             Jugar();
-
         }
 
         static void Jugar()
@@ -27,7 +26,7 @@ namespace TresEnRaya
             {
                 IniciarPartida();
                 //Si el ganador tiene contenido o hay empate el juego se acaba.
-                while (ganador == "" || ComprobarEmpate())
+                while (ganador == "" && !ComprobarEmpate())
                 {
                     CambiarTurno();
                     ComprovarPosicionYColocarFicha();
@@ -42,13 +41,16 @@ namespace TresEnRaya
                     Console.WriteLine("Hay empate.");
 
                 Console.WriteLine(@"
-                Quereis volver a jugar?
-                1. Si
-                2. No");
+Quereis volver a jugar?
+    1. Si
+    2. No");
                 if (Console.ReadLine() == "2")
-                {
                     break;
-                }
+
+                //Ponemos los valores iniciales
+                Array.Clear(tablero, 0, tablero.Length);
+                ganador = "";
+
             } while (true);
 
         }
@@ -87,7 +89,8 @@ namespace TresEnRaya
         {
             //Mostramos el estado del tablero y guardamos los nombres de los jugadores
             MostrarTablero();
-            GuardarJugadores();
+            if (jugadores[0] == null)
+                GuardarJugadores();
 
             //Comunicamos la asignacion de las fichas
             Console.WriteLine("Asignacion de fichas:\n\t" + jugadores[0] + ": 'O' \n\t" + jugadores[1] + ": 'X'");
@@ -173,7 +176,7 @@ namespace TresEnRaya
             if (tablero[0, 0] == tablero[1, 1] &&
                 tablero[0, 0] == tablero[2, 2] &&
                 tablero[0, 0] != 0)
-                if (tablero[0, 0] == ficha['O'])
+                if (tablero[0, 0] == 'O')
                     ganador = jugadores[0];
                 else
                     ganador = jugadores[1];
@@ -188,12 +191,13 @@ namespace TresEnRaya
 
         static bool ComprobarEmpate()
         {
-            for (int fila = 0; fila < 3; fila++) // Recorremos las filas
-                for (int columna = 0; columna < 3; columna++) // Recorremos las columnas
-                    if (tablero[fila, columna] == 0) // Si hay una casilla vacía significa que hay hueco
+            for (int fila = 0; fila < 3; fila++)
+                for (int columna = 0; columna < 3; columna++)
+                    if (tablero[fila, columna] == 0)
                         return false;
 
-            return true; // Significa que no hay huecos, por lo tanto hay empate
-        }
+            return true;
+
+        }
     }
 }
