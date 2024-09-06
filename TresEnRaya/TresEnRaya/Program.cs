@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.ExceptionServices;
@@ -9,31 +10,37 @@ namespace TresEnRaya
 {
     internal class Program
     {
-
-        static int[,] tablero = new int[3, 3];
+        //instancia e inicializa las variables
+        static int[,] tablero;
         static char[] ficha = { ' ', 'O', 'X' };
         static string[] jugadores = new string[2];
         static int turno;
         static string ganador = "";
+        static int dimensiones;
+
         static void Main(string[] args)
         {
             Jugar();
         }
 
+        /// <summary>
+        /// Desarrollo del juego
+        /// </summary>
         static void Jugar()
         {
             do
             {
                 IniciarPartida();
+
                 //Si el ganador tiene contenido o hay empate el juego se acaba.
-                while (ganador == "" && !ComprobarEmpate())
+                while (ganador == "" && !ComprobarEspacios())
                 {
                     CambiarTurno();
                     ComprovarPosicionYColocarFicha();
                     HayGandor();
                     MostrarTablero();
-
                 }
+
                 //Comprovamos si hay ganador para mencionarlo y si no decimos que hay empate.
                 if (ganador != "")
                     Console.WriteLine("El ganador es: " + ganador);
@@ -51,46 +58,65 @@ Quereis volver a jugar?
                 Array.Clear(tablero, 0, tablero.Length);
                 ganador = "";
 
-            } while (true);
+            }
+            while (true);
 
         }
 
+        /// <summary>
+        /// Muestra el tablero
+        /// </summary>
         static void MostrarTablero()
         {
             //Inicio del tablero
             Console.WriteLine();
-            Console.WriteLine("-------------");
+
+            //Linea separadora de filas del tablero
+            string lineaSeparadora = "";
+            for (int i = 0; i < dimensiones; i++)
+            {
+                lineaSeparadora += "----";
+                if (i == dimensiones - 1)
+                    lineaSeparadora += "-";
+            }
 
             //recorremos por fila y columnas
-            for (int fila = 0; fila < 3; fila++)
+            for (int fila = 0; fila < dimensiones; fila++)
             {
+                if (fila == 0)
+                    Console.WriteLine(lineaSeparadora);
                 Console.Write("|");
-                for (int columna = 0; columna < 3; columna++)
+                for (int columna = 0; columna < dimensiones; columna++)
                     //Cuando se encuentre con el contenido vacio hacemos que ponga el contenido de 'ficha[0]' que es un espacio
                     Console.Write(" {0} |", ficha[tablero[fila, columna]]);
                 Console.WriteLine();
-                Console.WriteLine("-------------");
+                Console.WriteLine(lineaSeparadora);
+
             }
         }
 
+        /// <summary>
+        /// Cambia el turno de los jugadores
+        /// </summary>
         static void CambiarTurno()
         {
             //Hacemos la comprovacion de que jugador tiene el turno para pasarla al otro
-            if (turno == 0)
-                turno = 1;
-            else
-                turno = 0;
+            turno = turno == 0 ? 1 : 0;
 
             //Indicamos que jugador continua
             Console.WriteLine("Turno de " + jugadores[turno]);
         }
 
+        /// <summary>
+        /// Inicia la partida,
+        /// vaciando el tablero
+        /// y guardando los nombres de los jugadores
+        /// </summary>
         static void IniciarPartida()
         {
             //Mostramos el estado del tablero y guardamos los nombres de los jugadores
-            MostrarTablero();
             if (jugadores[0] == null)
-                GuardarJugadores();
+                GuardarParametros();
 
             //Comunicamos la asignacion de las fichas
             Console.WriteLine("Asignacion de fichas:\n\t" + jugadores[0] + ": 'O' \n\t" + jugadores[1] + ": 'X'");
@@ -104,15 +130,26 @@ Quereis volver a jugar?
             ComprovarPosicionYColocarFicha();
         }
 
-        static void GuardarJugadores()
+        /// <summary>
+        /// Guarda los parámetros entrados por los jugadores,
+        /// el nombre y la dimensión del tablero
+        /// </summary>
+        static void GuardarParametros()
         {
             for (int i = 0; i < jugadores.Length; i++)
             {
                 Console.WriteLine("Nombre del jugador " + (i + 1) + ": ");
                 jugadores[i] = Console.ReadLine();
             }
+
+            Console.WriteLine("De que dimensiones quieres la partida? 'ejemplo: 3enRaya = 3'");
+            dimensiones = Int32.Parse(Console.ReadLine());
+            tablero = new int[dimensiones, dimensiones];
         }
 
+        /// <summary>
+        /// Comprueba la posición y coloca la ficha
+        /// </summary>
         static void ComprovarPosicionYColocarFicha()
         {
             do
@@ -138,66 +175,131 @@ Quereis volver a jugar?
                 //Si no esta vacio te sale un mensaje de informacion y vuelve a preguntar
                 else
                     Console.WriteLine("Posicion ocupada vuelve a probar.");
-            } while (true);
+            }
+            while (true);
         }
 
         /// <summary>
-        /// Método para comprobar si hay ganador
+        /// Comprueba si hay ganador
         /// </summary>
         static void HayGandor()
         {
+            int fichasDiagonalJ1;
+            int fichasDiagonalJ2;
+
             //si en alguna fila són todas las casillas iguales
-            for (int fila = 0; fila < 3; fila++)
+            for (int fila = 0; fila < dimensiones; fila++)
             {
-                if (tablero[fila, 0] == tablero[fila, 1] &&
-                    tablero[fila, 0] == tablero[fila, 2] &&
-                    tablero[fila, 0] != 0)
+                fichasDiagonalJ1 = 0;
+                fichasDiagonalJ2 = 0;
+                for (int columna = 0; columna < dimensiones; columna++)
                 {
-                    if (tablero[fila, 0] == 'O')
-                        ganador = jugadores[0];
-                    else
-                        ganador = jugadores[1];
+                    if (ficha[tablero[fila, columna]] == 'O')
+                        fichasDiagonalJ1++;
+                    else if (ficha[tablero[fila, columna]] == 'X')
+                        fichasDiagonalJ2++;
                 }
+                if (fichasDiagonalJ1 == dimensiones)
+                {
+                    ganador = jugadores[0];
+                    return;
+                }
+                else if (fichasDiagonalJ2 == dimensiones)
+                {
+                    ganador = jugadores[1];
+                    return;
+                }
+                else
+                    ganador = "";
             }
 
             //si en alguna columna són todas las casillas iguales
-            for (int columna = 0; columna < 3; columna++)
+            for (int columna = 0; columna < dimensiones; columna++)
             {
-                if (tablero[0, columna] == tablero[1, columna] &&
-                    tablero[0, columna] == tablero[2, columna] &&
-                    tablero[0, columna] != 0)
-                    if (tablero[0, columna] == 'O')
-                        ganador = jugadores[0];
-                    else
-                        ganador = jugadores[1];
+                fichasDiagonalJ1 = 0;
+                fichasDiagonalJ2 = 0;
+                for (int fila = 0; fila < dimensiones; fila++)
+                {
+                    if (ficha[tablero[fila, columna]] == 'O')
+                        fichasDiagonalJ1++;
+                    else if (ficha[tablero[fila, columna]] == 'X')
+                        fichasDiagonalJ2++;
+                }
+                if (fichasDiagonalJ1 == dimensiones)
+                {
+                    ganador = jugadores[0];
+                    return;
+                }
+                else if (fichasDiagonalJ2 == dimensiones)
+                {
+                    ganador = jugadores[1];
+                    return;
+                }
+                else
+                    ganador = "";
             }
 
-            //si en alguna diagonal las casillas són iguales
-            if (tablero[0, 0] == tablero[1, 1] &&
-                tablero[0, 0] == tablero[2, 2] &&
-                tablero[0, 0] != 0)
-                if (tablero[0, 0] == 'O')
-                    ganador = jugadores[0];
-                else
-                    ganador = jugadores[1];
-            if (tablero[0, 2] == tablero[1, 1] &&
-                tablero[0, 2] == tablero[2, 0] &&
-                tablero[0, 2] != 0)
-                if (tablero[0, 2] == 'O')
-                    ganador = jugadores[0];
-                else
-                    ganador = jugadores[1];
+            fichasDiagonalJ1 = 0;
+            fichasDiagonalJ2 = 0;
+            //Si la diagonal es de 'O' devulve true y si es 'X' devulve false
+            for (int i = 0; i < dimensiones; i++)
+            {
+                if (ficha[tablero[i, i]] == 'O')
+                    fichasDiagonalJ1++;
+                else if (ficha[tablero[i, i]] == 'X')
+                    fichasDiagonalJ2++;
+            }
+
+            if (fichasDiagonalJ1 == dimensiones)
+            {
+                ganador = jugadores[0];
+                return;
+            }
+            else if (fichasDiagonalJ2 == dimensiones)
+            {
+                ganador = jugadores[1];
+                return;
+            }
+            else
+            {
+                fichasDiagonalJ1 = 0;
+                fichasDiagonalJ2 = 0;
+                int j = dimensiones - 1;
+                for (int i = 0; i < dimensiones; i++)
+                {
+                    if (ficha[tablero[j, i]] == 'O')
+                        fichasDiagonalJ1++;
+                    else if (ficha[tablero[j, i]] == 'X')
+                        fichasDiagonalJ2++;
+                    j--;
+                }
+            }
+
+            if (fichasDiagonalJ1 == dimensiones)
+            {
+                ganador = jugadores[0];
+                return;
+            }
+            else if (fichasDiagonalJ2 == dimensiones)
+            {
+                ganador = jugadores[1];
+                return;
+            }
+            else
+                ganador = "";
         }
 
-        static bool ComprobarEmpate()
+        /// <summary>
+        /// Comprueba si hay espacios
+        /// </summary>
+        /// <returns></returns>
+        static bool ComprobarEspacios()
         {
-            for (int fila = 0; fila < 3; fila++)
-                for (int columna = 0; columna < 3; columna++)
+            for (int fila = 0; fila < dimensiones; fila++) // Recorremos las filas
+                for (int columna = 0; columna < dimensiones; columna++) // Recorremos las columnas
                     if (tablero[fila, columna] == 0)
                         return false;
-
             return true;
-
         }
     }
 }
