@@ -1,5 +1,4 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.ExceptionServices;
@@ -10,7 +9,7 @@ namespace TresEnRaya
 {
     internal class Program
     {
-        //instancia e inicializa las variables
+
         static int[,] tablero;
         static char[] ficha = { ' ', 'O', 'X' };
         static string[] jugadores = new string[2];
@@ -23,9 +22,7 @@ namespace TresEnRaya
             Jugar();
         }
 
-        /// <summary>
-        /// Desarrollo del juego
-        /// </summary>
+
         static void Jugar()
         {
             do
@@ -63,9 +60,6 @@ Quereis volver a jugar?
 
         }
 
-        /// <summary>
-        /// Muestra el tablero
-        /// </summary>
         static void MostrarTablero()
         {
             //Inicio del tablero
@@ -95,9 +89,6 @@ Quereis volver a jugar?
             }
         }
 
-        /// <summary>
-        /// Cambia el turno de los jugadores
-        /// </summary>
         static void CambiarTurno()
         {
             //Hacemos la comprovacion de que jugador tiene el turno para pasarla al otro
@@ -107,11 +98,6 @@ Quereis volver a jugar?
             Console.WriteLine("Turno de " + jugadores[turno]);
         }
 
-        /// <summary>
-        /// Inicia la partida,
-        /// vaciando el tablero
-        /// y guardando los nombres de los jugadores
-        /// </summary>
         static void IniciarPartida()
         {
             //Mostramos el estado del tablero y guardamos los nombres de los jugadores
@@ -130,10 +116,6 @@ Quereis volver a jugar?
             ComprovarPosicionYColocarFicha();
         }
 
-        /// <summary>
-        /// Guarda los parámetros entrados por los jugadores,
-        /// el nombre y la dimensión del tablero
-        /// </summary>
         static void GuardarParametros()
         {
             for (int i = 0; i < jugadores.Length; i++)
@@ -147,9 +129,6 @@ Quereis volver a jugar?
             tablero = new int[dimensiones, dimensiones];
         }
 
-        /// <summary>
-        /// Comprueba la posición y coloca la ficha
-        /// </summary>
         static void ComprovarPosicionYColocarFicha()
         {
             do
@@ -180,7 +159,7 @@ Quereis volver a jugar?
         }
 
         /// <summary>
-        /// Comprueba si hay ganador
+        /// Método para comprobar si hay ganador
         /// </summary>
         static void HayGandor()
         {
@@ -212,6 +191,7 @@ Quereis volver a jugar?
                 else
                     ganador = "";
             }
+
 
             //si en alguna columna són todas las casillas iguales
             for (int columna = 0; columna < dimensiones; columna++)
@@ -289,10 +269,6 @@ Quereis volver a jugar?
                 ganador = "";
         }
 
-        /// <summary>
-        /// Comprueba si hay espacios
-        /// </summary>
-        /// <returns></returns>
         static bool ComprobarEspacios()
         {
             for (int fila = 0; fila < dimensiones; fila++) // Recorremos las filas
